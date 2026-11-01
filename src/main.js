@@ -99,15 +99,19 @@ class Play extends Scene {
   /** Song time: the audio clock when there is one, as it does not drift. Negative during the lead-in. */
   time(dt) {
     const a = this.g.sound.ctx;
-    if (a) {
+    if (a?.state === "running") {
       if (this.ctx0 == null) this.ctx0 = a.currentTime - this.ref;
       this.ref = a.currentTime - this.ctx0;
-    } else this.ref += dt;
+    } else {
+      // A phone can suspend audio at any moment, and its clock stops with it. The song must not.
+      this.ref += dt;
+      this.ctx0 = null;
+    }
     return this.ref - LEAD_IN;
   }
   schedule(now) {
     const sound = this.g.sound, song = this.chart.song;
-    if (!sound.ctx || this.g.store.data.music === false) { this.step = Math.max(this.step, Math.ceil(now / song.gap)); return; }
+    if (sound.ctx?.state !== "running" || this.g.store.data.music === false) { this.step = Math.max(this.step, Math.ceil(now / song.gap)); return; }
     while (this.step < song.steps && this.step * song.gap < now + 0.25) {
       const at = this.step * song.gap, delay = Math.max(0, at - now);
       if (at >= now - 0.02) {

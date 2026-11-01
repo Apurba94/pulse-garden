@@ -363,6 +363,8 @@ export class Game {
   resize() {
     const cw = window.innerWidth;
     const ch = window.innerHeight;
+    if (!(cw > 0 && ch > 0)) return; // A page opened hidden has no size yet; a resize event follows when it gets one.
+    const before = this.H;
     this.H = clamp((this.W * ch) / cw, 640, 860);
     const s = Math.min(cw / this.W, ch / this.H);
     const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
@@ -372,8 +374,8 @@ export class Game {
     this.canvas.style.width = this.W * s + "px";
     this.canvas.style.height = this.H * s + "px";
     this.css = s;
-    if (this.scene) this.layout?.();
-    this.scene?.resized?.();
+    // Buttons near the bottom edge follow it, so a rotation or a browser bar cannot strand them off screen.
+    if (this.scene) for (const b of this.scene.ui.items) if (b.y > before / 2) b.y += this.H - before;
   }
   /** Convert a browser position (or game units when raw is false) and pass it to the screen. */
   pointer(kind, x, y, id = 1, raw = false) {

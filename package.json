@@ -1,0 +1,11 @@
+{
+  "name": "pulse-garden",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "A rhythm game with composed-on-the-spot music: tap the blooms as they reach the ring and grow a garden with your score.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
